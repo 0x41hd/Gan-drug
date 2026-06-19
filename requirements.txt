@@ -1,17 +1,18 @@
 # FeedbackGAN — Drug Discovery requirements
-# Tested on Python 3.9–3.11 (Google Colab compatible)
 #
-# This project was written for the Keras 2 API. On environments that ship
-# Keras 3 (modern Colab), set the environment variable TF_USE_LEGACY_KERAS=1
-# BEFORE importing tensorflow, and install tf-keras (below).
+# This project was written for the Keras 2 API. Modern TensorFlow ships Keras 3,
+# so we DON'T pin a TF version (new Python can't install old TF). Instead we add
+# tf-keras (the Keras 2 API) and set TF_USE_LEGACY_KERAS=1 before importing TF.
+#
+#   export TF_USE_LEGACY_KERAS=1     # Windows: set TF_USE_LEGACY_KERAS=1
 
-tensorflow==2.15.1
-tf-keras            # provides the Keras 2 API on Keras-3 environments
-numpy<2.0           # NumPy 2.x removes np.float and other deprecated aliases
-rdkit               # cheminformatics: SMILES validation, LogP, SA score
-munch               # maintained replacement for the unmaintained 'bunch'
-seaborn>=0.12       # plotting (code uses fill= which needs >=0.12)
+tensorflow            # any recent version (Colab's default is fine)
+tf-keras              # provides the Keras 2 API on top of modern TensorFlow
+numpy<2.0             # NumPy 2.x removes np.float and other deprecated aliases
+rdkit                 # cheminformatics: SMILES validation, LogP, SA score
+munch                 # maintained replacement for the unmaintained 'bunch'
+seaborn>=0.12         # plotting (code uses fill= which needs >=0.12)
 matplotlib
 pandas
-scikit-learn        # train/val/test split
-tqdm                # progress bars
+scikit-learn          # train/val/test split
+tqdm                  # progress bars
