@@ -49,7 +49,7 @@ except ImportError:
 from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
 from rdkit.Chem import Crippen
-from sascorer_calculator import SAscore
+from sascorer import SAscore
 
 
 def validity(smiles_list):
