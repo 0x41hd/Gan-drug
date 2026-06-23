@@ -36,6 +36,11 @@ import seaborn as sb
 from rdkit.Chem import MolFromSmiles, AllChem, QED, Descriptors
 from rdkit import DataStructs
 from rdkit import Chem
+# fix: silence the flood of "SMILES Parse Error" messages RDKit prints when the
+# generator produces invalid SMILES (expected during sampling). They are not
+# errors we need to see.
+from rdkit import RDLogger
+RDLogger.DisableLog('rdApp.*')
 # fix: DrawingOptions was moved/removed in newer RDKit versions and is unused here.
 try:
     from rdkit.Chem.Draw import DrawingOptions
@@ -383,27 +388,45 @@ def reading_csv(config,property_identifier):
         reader = csv.reader(csvFile)
         
         it = iter(reader)
-        next(it, None)  # skip first item.   
+        next(it, None)  # skip header row
         permeable = 0
         for row in it:
+            # fix: skip malformed/short rows so we never read a missing label
+            # column. This was the source of the IndexError in the old code.
+            if len(row) <= max(idx_smiles, idx_labels):
+                continue
             try:
-                if "[S@@H0]" in row[idx_smiles] or "[n+]" in row[idx_smiles] or "[o+]" in row[idx_smiles] or "[c@@]" in row[idx_smiles]:
-                    print("-->",row[idx_smiles])
-                elif permeable < 1249 or float(row[idx_labels]) == 0:
-                    raw_smiles.append(row[idx_smiles])
-                    raw_labels.append(float(row[idx_labels]))
-                    if float(row[idx_labels]) == 1:
-                        permeable = permeable + 1
+                smi = row[idx_smiles]
+                lab = float(row[idx_labels])
+            except (ValueError, IndexError):
+                continue  # non-numeric label or bad row -> skip
 
-            except:
-                pass
+            if property_identifier == 'bbb':
+                # The BBB dataset uses a special balancing rule based on the
+                # number of 'permeable' (label==1) molecules. Keep that logic
+                # only for bbb, and also keep the original aromatic-ion filter.
+                if ("[S@@H0]" in smi or "[n+]" in smi or "[o+]" in smi
+                        or "[c@@]" in smi):
+                    continue
+                if permeable < 1249 or lab == 0:
+                    raw_smiles.append(smi)
+                    raw_labels.append(lab)
+                    if lab == 1:
+                        permeable += 1
+            else:
+                # fix: for kor / jak2 / a2d (regression on pIC50), keep every
+                # valid (smiles,label) pair. The old permeable<1249 / [n+] filters
+                # were BBB-specific and wrongly discarded valid KOR molecules.
+                raw_smiles.append(smi)
+                raw_labels.append(lab)
     
     smiles = []
     labels = []
-#    and raw_smiles[i] not in smiles
-    #and 'L' not in raw_smiles[i] and 'Cl' not in raw_smiles[i] and 'Br' not in raw_smiles[i]
     for i in range(len(raw_smiles)):
-        if len(raw_smiles[i]) <= config.smile_len_threshold  and 'a' not in raw_smiles[i] and 'Z' not in raw_smiles[i] and 'K' not in raw_smiles[i]:
+        if (len(raw_smiles[i]) <= config.smile_len_threshold
+                and 'a' not in raw_smiles[i]
+                and 'Z' not in raw_smiles[i]
+                and 'K' not in raw_smiles[i]):
             smiles.append(raw_smiles[i])
             labels.append(raw_labels[i])
             
