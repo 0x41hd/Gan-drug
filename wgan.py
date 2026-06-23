@@ -330,7 +330,7 @@ class WGANGP():
     def sample_data(self, n, run_folder, save):
         print('sampling data...')
         noise = np.random.uniform(-1,1,(n, self.z_dim))       #generates noise vectors
-        generated_data = self.generator.predict(noise)      #generates fake data
+        generated_data = self.generator.predict(noise, verbose=0)      #generates fake data
         generated_smiles = []
         for i in range(generated_data.shape[0]):            #transforms fake data into SMILES
             sml = self.autoencoder.latent_to_smiles(generated_data[i:i+1], self.vocab)
@@ -369,9 +369,7 @@ class WGANGP():
             #if aux == n &&:
             if self.epoch % 50 == 0 and self.epoch !=0: 
                 noise = np.random.uniform(-1,1,(1000, self.z_dim))       #generates noise vectors
-                generated_data = self.generator.predict(noise)      #generates fake data
-                print(generated_data)
-                print(generated_data.shape)
+                generated_data = self.generator.predict(noise, verbose=0)      #generates fake data
                 generated_smiles = []
                 for i in range(generated_data.shape[0]):            #transforms fake data into SMILES
                     sml = self.autoencoder.latent_to_smiles(generated_data[i:i+1], self.vocab)
@@ -383,7 +381,7 @@ class WGANGP():
                        
             else:
                 noise = np.random.uniform(-1,1,(temp, self.z_dim))       #generates noise vectors
-                generated_data = self.generator.predict(noise)      #generates fake data
+                generated_data = self.generator.predict(noise, verbose=0)      #generates fake data
                 generated_smiles = []
                 for i in range(generated_data.shape[0]):            #transforms fake data into SMILES
                     sml = self.autoencoder.latent_to_smiles(generated_data[i:i+1], self.vocab)
@@ -402,6 +400,7 @@ class WGANGP():
                 valid_generated_data = valid_generated_data[0:n]
             #aux = len(valid_smiles)
             temp = aux - len(valid_smiles)
+            print(f"  [sampling] attempt {attempt}: {len(valid_smiles)}/{aux} valid SMILES collected (last batch {perc_valid:.1f}% valid)")
 
         if attempt == MAX_ATTEMPTS and len(valid_smiles) < aux:  # fix: warn instead of infinite loop
             print(f"Warning: sample_valid_data generated only {len(valid_smiles)}/{aux} valid SMILES after {MAX_ATTEMPTS} attempts")
