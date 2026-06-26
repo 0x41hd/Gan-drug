@@ -368,27 +368,37 @@ def reading_csv(config,property_identifier):
         filepath = config.datapath_jak2
         idx_smiles = 0
         idx_labels = 1
+        label_col_name = None
     elif property_identifier == 'a2d':
         filepath = config.file_path_a2d
         idx_smiles = 0
         idx_labels = 1
+        label_col_name = None
     elif property_identifier == 'kor':
         filepath = 'data/data_clean_kop.csv'#+config.datapath_kor
         idx_smiles = 0
-        idx_labels = 1   
+        idx_labels = 1
+        label_col_name = 'pIC50'
     elif property_identifier == 'jak2':
         filepath = 'data/jak2_data.csv'
         idx_smiles = 0
         idx_labels = 1
-        
+        label_col_name = 'pIC50'
+
     raw_smiles = []
     raw_labels = []
-    
+
     with open(filepath, 'r') as csvFile:
         reader = csv.reader(csvFile)
-        
+
         it = iter(reader)
-        next(it, None)  # skip header row
+        header = next(it, None)
+        # fix: data_clean_kop.csv carries many descriptor columns and the
+        # label ('pIC50') isn't in column 1 like the older bbb/a2d datasets.
+        # Resolve the label column by name from the header when available,
+        # instead of assuming a fixed index.
+        if label_col_name is not None and header is not None and label_col_name in header:
+            idx_labels = header.index(label_col_name)
         permeable = 0
         for row in it:
             # fix: skip malformed/short rows so we never read a missing label
