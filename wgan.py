@@ -16,7 +16,7 @@ import numpy as np
 import os
 import csv
 from matplotlib import pyplot as plt
-from utils import *
+from Utils import *
 import tqdm
 import time
 
