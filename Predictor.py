@@ -15,10 +15,10 @@ import numpy as np
 import pandas as pd
 import csv
 import os
-from tokens import tokens_table
+from Tokens import tokens_table
 
-from utils import regression_plot, denormalization_with_labels, reading_csv, transform_to_array
-from utils import mse, r_square, rmse, ccc
+from Utils import regression_plot, denormalization_with_labels, reading_csv, transform_to_array
+from Utils import mse, r_square, rmse, ccc
 import time
 
 
