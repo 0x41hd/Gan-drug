@@ -5,7 +5,7 @@
 > latent space of a BiLSTM Autoencoder and is steered by an LSTM-predictor
 > feedback loop.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/0x41hd/GAN-Drug-Generator/blob/main/FeedbackGAN_Colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/0x41hd/gan-drug/blob/main/GAN_Colab.ipynb)
 
 ![Architecture](framework.jpg)
 
@@ -60,18 +60,18 @@ higher-potency molecules.
 ## Repository structure
 
 ```
-GAN-Drug-Generator/
-├── FeedbackGAN_Colab.ipynb     ← run THIS in Colab
+gan-drug/
+├── GAN_Colab.ipynb              ← run THIS in Colab
 │
-├── main_feedbackGAN.py         ← local entry point (alternative to notebook)
-├── WGAN_4.py                   ← WGAN-GP model
-├── Autoencoder2_emb.py         ← BiLSTM autoencoder
-├── predictor.py                ← LSTM predictor ensemble
-├── utils.py                    ← utilities (validity, scoring, feedback update)
-├── Vocabulary2.py              ← SMILES tokenizer/encoder
-├── tokens.py                   ← token table (predictor dependency)
-├── sascorer_calculator.py      ← synthetic accessibility score (Ertl 2009)
-├── pareto_front.py             ← post-hoc multi-objective ranking
+├── main.py                      ← local entry point (alternative to notebook)
+├── wgan.py                      ← WGAN-GP model
+├── autoencoder.py               ← BiLSTM autoencoder
+├── Predictor.py                 ← LSTM predictor ensemble
+├── Utils.py                     ← utilities (validity, scoring, feedback update)
+├── Vocabulary.py                ← SMILES tokenizer/encoder
+├── Tokens.py                    ← token table (predictor dependency)
+├── sascorer.py                  ← synthetic accessibility score (Ertl 2009)
+├── Pareto_front.py              ← post-hoc multi-objective ranking
 │
 ├── requirements.txt
 ├── README.md
@@ -80,7 +80,9 @@ GAN-Drug-Generator/
 ├── framework.jpg               ← architecture diagram
 │
 └── data/
-    └── data_clean_kop.csv      ← KOR dataset (smiles,pIC50) — YOU PROVIDE
+    └── data_clean_kop.csv      ← KOR dataset (must have 'smiles' and 'pIC50'
+                                   columns; extra descriptor columns are fine)
+                                   — YOU PROVIDE
 ```
 
 ---
@@ -90,7 +92,7 @@ GAN-Drug-Generator/
 Push **everything above**, including:
 
 - All 9 `.py` files
-- `FeedbackGAN_Colab.ipynb`
+- `GAN_Colab.ipynb`
 - `README.md`, `LICENSE`, `.gitignore`, `requirements.txt`
 - `framework.jpg`
 - **`data/data_clean_kop.csv`** — yes, include it, because the notebook clones
@@ -107,8 +109,9 @@ Push **everything above**, including:
 
 ## The dataset
 
-`data/data_clean_kop.csv` must be a CSV with SMILES in column 0 and pIC50 in
-column 1:
+`data/data_clean_kop.csv` must be a CSV with a `smiles` column (column 0) and
+a `pIC50` column (looked up by name, so it does not have to be column 1 —
+extra descriptor columns in between are fine):
 
 ```
 smiles,pIC50
@@ -128,8 +131,8 @@ To build it from [ChEMBL](https://www.ebi.ac.uk/chembl/):
 ## Running locally (instead of Colab)
 
 ```bash
-git clone https://github.com/0x41hd/GAN-Drug-Generator.git
-cd GAN-Drug-Generator
+git clone https://github.com/0x41hd/gan-drug.git
+cd gan-drug
 
 conda create -n feedbackgan python=3.10
 conda activate feedbackgan
@@ -138,10 +141,10 @@ pip install -r requirements.txt
 # IMPORTANT: this project uses the Keras 2 API.
 export TF_USE_LEGACY_KERAS=1        # Windows: set TF_USE_LEGACY_KERAS=1
 
-python main_feedbackGAN.py
+python main.py
 ```
 
-> Note: `main_feedbackGAN.py` assumes pre-trained weights exist. If you're
+> Note: `main.py` assumes pre-trained weights exist. If you're
 > training from scratch, the **notebook** is the supported path — it runs the
 > three training stages in the right order.
 
@@ -164,7 +167,7 @@ generated molecules upward. After training you get:
 
 - A KDE plot comparing pIC50 **before vs after** the feedback loop
 - A CSV of generated molecules ranked by predicted potency
-- A Pareto front (pIC50 vs SA score) via `pareto_front.py`
+- A Pareto front (pIC50 vs SA score) via `Pareto_front.py`
 
 ---
 
