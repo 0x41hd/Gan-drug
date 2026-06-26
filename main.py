@@ -10,10 +10,10 @@ import tensorflow as tf
 from tensorflow.keras.models import model_from_json
 import json
 from Vocabulary import Vocabulary
-from predictor import Predictor
+from Predictor import Predictor
 from wgan import WGANGP
 from autoencoder import Autoencoder as AE
-from utils import *
+from Utils import *
 import time
 from csv import reader
 TF = False
